@@ -1,0 +1,12 @@
+{
+  "tool_id": "${{TOOL_ID}}",
+  "tool_version": "${{TOOL_VERSION}}",
+  "invocation_id": "${{INVOCATION_ID}}",
+  "args": {
+    "query": "${{QUERY}}",
+    "limit": ${{LIMIT}},
+    "filters": ${{FILTERS}}
+  },
+  "timestamp": "${{TIMESTAMP}}",
+  "caller_id": "${{CALLER_ID}}"
+}
