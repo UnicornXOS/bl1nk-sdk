@@ -1,0 +1,35 @@
+plugin:
+  id: "plugin.example.echo"
+  name: "Echo Plugin"
+  version: "0.1.0"
+  author: "Dollawatt"
+
+runtime:
+  type: "nodejs"          # nodejs | python | docker | binary | http
+  language: "typescript"  # optional: typescript | javascript | python
+  entrypoint: "dist/main.js"
+  source: "src/main.ts"
+  build: "npm run build"  # optional
+  adapter: null           # optional adapter object
+
+contract:
+  input:
+    type: "json"
+    schema:
+      required: ["message"]
+      properties:
+        message: { type: "string" }
+  output:
+    type: "json"
+    schema:
+      properties:
+        echoed: { type: "string" }
+
+permissions:
+  filesystem: false
+  network: false
+  env: false
+
+metadata:
+  tags: ["utility"]
+  license: "MIT"
