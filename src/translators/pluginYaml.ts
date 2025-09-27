@@ -17,3 +17,26 @@ export function normalizePluginYaml(yaml:any): NormalizedPlugin {
     metadata: yaml.metadata || {}
   };
 }
+
+import crypto from 'crypto';
+
+// ...
+
+function verifyPluginSignature(yamlData: any): boolean {
+  const { signature, signer, ...restOfYaml } = yamlData;
+  if (!signature || !signer) return false;
+
+  const verify = crypto.createVerify('SHA256');
+  // สร้าง hash จากข้อมูลทั้งหมด ยกเว้น signature และ signer
+  verify.update(JSON.stringify(restOfYaml)); 
+  verify.end();
+
+  // ใช้ Public Key (signer) ตรวจสอบ signature
+  return verify.verify(signer, signature, 'hex');
+}
+
+// ใน normalizePluginYaml ควรเรียกใช้ฟังก์ชันนี้
+// const isSignatureValid = verifyPluginSignature(yamlData);
+// if (!isSignatureValid) {
+//   throw new Error('Invalid plugin signature');
+// }
