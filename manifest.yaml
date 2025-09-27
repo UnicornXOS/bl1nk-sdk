@@ -2,7 +2,7 @@ plugin:
   id: "plugin.example.echo"
   name: "Echo Plugin"
   version: "0.1.0"
-  author: "Dollawatt"
+  author: "billlzzz10"
 
 runtime:
   type: "nodejs"          # nodejs | python | docker | binary | http
