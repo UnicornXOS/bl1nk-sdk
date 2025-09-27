@@ -1,0 +1,19 @@
+{
+  "type": "object",
+  "properties": {
+    "TOOL_ID": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+    "TOOL_VERSION": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+    "INVOCATION_ID": { "type": "string", "minLength": 1 },
+    "QUERY": { "type": "string", "maxLength": 1000 },
+    "LIMIT": { "type": "integer", "minimum": 1, "maximum": 100 },
+    "FILTERS": { 
+      "type": "array", 
+      "items": { "type": "string" },
+      "maxItems": 10
+    },
+    "TIMESTAMP": { "type": "string", "format": "date-time" },
+    "CALLER_ID": { "type": "string" }
+  },
+  "required": ["TOOL_ID", "TOOL_VERSION", "INVOCATION_ID", "QUERY", "TIMESTAMP"],
+  "additionalProperties": false
+}
