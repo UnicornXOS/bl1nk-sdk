@@ -4,8 +4,8 @@
   "invocation_id": "${{INVOCATION_ID}}",
   "args": {
     "query": "${{QUERY}}",
-    "limit": ${{LIMIT}},
-    "filters": ${{FILTERS}}
+    "limit": "${{LIMIT}}",
+    "filters": "${{FILTERS}}"
   },
 
   "timestamp": "${{TIMESTAMP}}",
