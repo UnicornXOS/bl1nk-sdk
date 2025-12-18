@@ -1,4 +1,5 @@
-# 1. โครงสร้าง Monorepo แบบ Comprehensive
+# โครงสร้าง Monorepo แบบ Comprehensive
+
 
 ```
 bl1nk-mcp/
