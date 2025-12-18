@@ -681,7 +681,3 @@ External Resources
 📄 License
 
 All code in this repository is licensed under the MIT License unless otherwise specified. See LICENSE for details.
-
----
-
-These guidelines are living documents. Contribute improvements via pull requests following the standards outlined above.
