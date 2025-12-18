@@ -1,0 +1,1031 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "BL1NK SDK API",
+    "description": "SDK สำหรับการเชื่อมต่อและจัดการ MCP Plugins",
+    "version": "1.0.0",
+    "contact": {
+      "name": "UnicornXOS",
+      "url": "https://github.com/UnicornXOS/bl1nk-sdk"
+    },
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.bl1nk.dev/v1",
+      "description": "Production server"
+    },
+    {
+      "url": "http://localhost:3000/v1",
+      "description": "Development server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Plugins",
+      "description": "การจัดการ plugins"
+    },
+    {
+      "name": "Tools",
+      "description": "การเรียกใช้ tools ใน plugins"
+    },
+    {
+      "name": "Context",
+      "description": "การจัดการ context และ session"
+    },
+    {
+      "name": "Health",
+      "description": "การตรวจสอบสถานะระบบ"
+    }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": ["Health"],
+        "summary": "ตรวจสอบสถานะระบบ",
+        "responses": {
+          "200": {
+            "description": "ระบบทำงานปกติ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "ระบบมีปัญหา",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/plugins": {
+      "get": {
+        "tags": ["Plugins"],
+        "summary": "ดึงรายการ plugins ทั้งหมด",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PluginStatusQuery"
+          },
+          {
+            "$ref": "#/components/parameters/LimitQuery"
+          },
+          {
+            "$ref": "#/components/parameters/OffsetQuery"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "สำเร็จ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PluginListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Plugins"],
+        "summary": "ติดตั้ง plugin ใหม่",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PluginInstallRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "ติดตั้ง plugin สำเร็จ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PluginResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "409": {
+            "description": "Plugin มีอยู่แล้ว",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/plugins/{pluginId}": {
+      "get": {
+        "tags": ["Plugins"],
+        "summary": "ดึงข้อมูล plugin เฉพาะ",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PluginIdPath"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "สำเร็จ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PluginResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Plugins"],
+        "summary": "ลบ plugin",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PluginIdPath"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "ลบ plugin สำเร็จ"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          }
+        }
+      }
+    },
+    "/tools/invoke": {
+      "post": {
+        "tags": ["Tools"],
+        "summary": "เรียกใช้ tool",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ToolInvocationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "เรียกใช้ tool สำเร็จ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ToolInvocationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "404": {
+            "description": "Tool ไม่พบ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Tool execution error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tools/{toolId}/schema": {
+      "get": {
+        "tags": ["Tools"],
+        "summary": "ดึง schema ของ tool",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ToolIdPath"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "สำเร็จ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ToolSchemaResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/context/sessions": {
+      "post": {
+        "tags": ["Context"],
+        "summary": "สร้าง session ใหม่",
+        "responses": {
+          "201": {
+            "description": "สร้าง session สำเร็จ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": ["Context"],
+        "summary": "ดึงรายการ sessions",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/LimitQuery"
+          },
+          {
+            "$ref": "#/components/parameters/OffsetQuery"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "สำเร็จ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionListResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/context/sessions/{sessionId}": {
+      "get": {
+        "tags": ["Context"],
+        "summary": "ดึงข้อมูล session",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/SessionIdPath"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "สำเร็จ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "put": {
+        "tags": ["Context"],
+        "summary": "อัพเดตข้อมูล session",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/SessionIdPath"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SessionUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "อัพเดตสำเร็จ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          }
+        }
+      }
+    },
+    "/context/sessions/{sessionId}/messages": {
+      "post": {
+        "tags": ["Context"],
+        "summary": "เพิ่ม message ลงใน session",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/SessionIdPath"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MessageCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "เพิ่ม message สำเร็จ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          }
+        }
+      },
+      "get": {
+        "tags": ["Context"],
+        "summary": "ดึง messages ใน session",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/SessionIdPath"
+          },
+          {
+            "$ref": "#/components/parameters/LimitQuery"
+          },
+          {
+            "$ref": "#/components/parameters/OffsetQuery"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "สำเร็จ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageListResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "parameters": {
+      "PluginIdPath": {
+        "name": "pluginId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_-]+$",
+          "minLength": 3,
+          "maxLength": 50
+        },
+        "description": "ID ของ plugin"
+      },
+      "ToolIdPath": {
+        "name": "toolId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9._-]+$",
+          "minLength": 3,
+          "maxLength": 100
+        },
+        "description": "ID ของ tool"
+      },
+      "SessionIdPath": {
+        "name": "sessionId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "description": "ID ของ session"
+      },
+      "PluginStatusQuery": {
+        "name": "status",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": ["active", "inactive", "error"]
+        },
+        "description": "สถานะของ plugin"
+      },
+      "LimitQuery": {
+        "name": "limit",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 20
+        },
+        "description": "จำนวนรายการที่ต้องการ"
+      },
+      "OffsetQuery": {
+        "name": "offset",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0
+        },
+        "description": "ตำแหน่งเริ่มต้น"
+      }
+    },
+    "schemas": {
+      "HealthResponse": {
+        "type": "object",
+        "required": ["status", "timestamp", "version"],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": ["healthy", "degraded", "unhealthy"]
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "version": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d+\\.\\d+$"
+          },
+          "uptime": {
+            "type": "number",
+            "description": "เวลาการทำงานเป็นวินาที"
+          },
+          "activePlugins": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      },
+      "PluginMetadata": {
+        "type": "object",
+        "required": ["id", "name", "version"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_-]+$",
+            "minLength": 3,
+            "maxLength": 50
+          },
+          "name": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 100
+          },
+          "version": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d+\\.\\d+$"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 500
+          },
+          "author": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "repository": {
+            "type": "string",
+            "format": "uri"
+          },
+          "license": {
+            "type": "string"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 10
+          }
+        }
+      },
+      "PluginInstallRequest": {
+        "type": "object",
+        "required": ["source"],
+        "properties": {
+          "source": {
+            "type": "string",
+            "description": "ที่มาของ plugin (URL, path, หรือ registry name)",
+            "maxLength": 500
+          },
+          "version": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d+\\.\\d+$"
+          },
+          "config": {
+            "type": "object",
+            "description": "การตั้งค่าเริ่มต้นของ plugin"
+          },
+          "force": {
+            "type": "boolean",
+            "default": false,
+            "description": "บังคับติดตั้งแม้มีเวอร์ชันเก่าอยู่"
+          }
+        }
+      },
+      "PluginResponse": {
+        "type": "object",
+        "required": ["metadata", "status", "installedAt"],
+        "properties": {
+          "metadata": {
+            "$ref": "#/components/schemas/PluginMetadata"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["active", "inactive", "error", "installing"]
+          },
+          "installedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "error": {
+            "type": "string",
+            "description": "ข้อความ error ถ้ามี"
+          },
+          "tools": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ToolSchema"
+            }
+          },
+          "config": {
+            "type": "object",
+            "description": "การตั้งค่าปัจจุบัน"
+          }
+        }
+      },
+      "PluginListResponse": {
+        "type": "object",
+        "required": ["plugins", "total", "limit", "offset"],
+        "properties": {
+          "plugins": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PluginResponse"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      },
+      "ToolSchema": {
+        "type": "object",
+        "required": ["tool_id", "name", "version"],
+        "properties": {
+          "tool_id": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9._-]+$",
+            "minLength": 3,
+            "maxLength": 100
+          },
+          "name": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 100
+          },
+          "version": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d+\\.\\d+$"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 500
+          },
+          "input_schema": {
+            "type": "object",
+            "description": "JSON Schema สำหรับ input"
+          },
+          "output_schema": {
+            "type": "object",
+            "description": "JSON Schema สำหรับ output"
+          },
+          "requires_auth": {
+            "type": "boolean",
+            "default": false
+          },
+          "rate_limit": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "จำนวนครั้งที่เรียกได้ต่อนาที"
+          }
+        }
+      },
+      "ToolInvocationRequest": {
+        "type": "object",
+        "required": ["tool_id", "invocation_id", "args"],
+        "properties": {
+          "tool_id": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9._-]+$"
+          },
+          "invocation_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "args": {
+            "type": "object",
+            "description": "Arguments ตามที่กำหนดใน input_schema"
+          },
+          "plugin_id": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_-]+$"
+          },
+          "session_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "metadata": {
+            "type": "object",
+            "description": "ข้อมูลเพิ่มเติม"
+          }
+        }
+      },
+      "ToolInvocationResponse": {
+        "type": "object",
+        "required": ["invocation_id", "tool_id", "status", "timestamp"],
+        "properties": {
+          "invocation_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "tool_id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["success", "error", "timeout"]
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "result": {
+            "type": "object",
+            "description": "ผลลัพธ์ตาม output_schema"
+          },
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              },
+              "details": {
+                "type": "object"
+              }
+            }
+          },
+          "execution_time": {
+            "type": "number",
+            "description": "เวลาการทำงานในหน่วยมิลลิวินาที"
+          }
+        }
+      },
+      "ToolSchemaResponse": {
+        "type": "object",
+        "required": ["schema", "plugin_id"],
+        "properties": {
+          "schema": {
+            "$ref": "#/components/schemas/ToolSchema"
+          },
+          "plugin_id": {
+            "type": "string"
+          },
+          "available": {
+            "type": "boolean"
+          }
+        }
+      },
+      "SessionResponse": {
+        "type": "object",
+        "required": ["id", "created_at", "updated_at"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "metadata": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "maxLength": 100
+              },
+              "description": {
+                "type": "string",
+                "maxLength": 500
+              },
+              "tags": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "plugin_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Plugin IDs ที่ใช้ใน session นี้"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "เวลาหมดอายุของ session"
+          }
+        }
+      },
+      "SessionUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "metadata": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "maxLength": 100
+              },
+              "description": {
+                "type": "string",
+                "maxLength": 500
+              }
+            }
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "SessionListResponse": {
+        "type": "object",
+        "required": ["sessions", "total"],
+        "properties": {
+          "sessions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SessionResponse"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      },
+      "MessageCreateRequest": {
+        "type": "object",
+        "required": ["role", "content"],
+        "properties": {
+          "role": {
+            "type": "string",
+            "enum": ["user", "assistant", "system", "tool"]
+          },
+          "content": {
+            "type": "string",
+            "maxLength": 10000
+          },
+          "tool_invocation_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID ของ tool invocation ที่เกี่ยวข้อง"
+          },
+          "metadata": {
+            "type": "object"
+          }
+        }
+      },
+      "MessageResponse": {
+        "type": "object",
+        "required": ["id", "role", "content", "created_at"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "role": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string"
+          },
+          "tool_invocation_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "metadata": {
+            "type": "object"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "MessageListResponse": {
+        "type": "object",
+        "required": ["messages", "total"],
+        "properties": {
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MessageResponse"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "required": ["error", "message", "timestamp"],
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "รหัส error"
+          },
+          "message": {
+            "type": "string",
+            "description": "ข้อความ error"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "details": {
+            "type": "object",
+            "description": "รายละเอียดเพิ่มเติม"
+          },
+          "request_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID ของ request"
+          }
+        }
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "description": "ข้อมูล request ไม่ถูกต้อง",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "ไม่พบทรัพยากรที่ต้องการ",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      },
+      "InternalServerError": {
+        "description": "เกิดข้อผิดพลาดภายในเซิร์ฟเวอร์",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-Key",
+        "description": "API Key สำหรับการยืนยันตัวตน"
+      },
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "JWT token สำหรับการยืนยันตัวตน"
+      }
+    }
+  },
+  "security": [
+    {
+      "ApiKeyAuth": []
+    },
+    {
+      "BearerAuth": []
+    }
+  ]
+}
